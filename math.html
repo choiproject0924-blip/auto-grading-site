@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>수학 채점</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .hidden { display: none; }
+  .set-btn { margin: 5px 0; padding: 8px 12px; }
+  .question { margin-bottom: 20px; }
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  label {
+    border: 1px solid #ccc;
+    padding: 6px;
+    cursor: pointer;
+    text-align: center;
+  }
+  input[type="radio"] { display: none; }
+  input[type="radio"]:checked + span {
+    background: #cce5ff;
+    display: block;
+  }
+  #error { color: red; margin-top: 10px; }
+  #result { margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<h2>수학 세트 선택</h2>
+<div id="setSelect"></div>
+
+<div id="quiz" class="hidden">
+  <h3 id="setTitle"></h3>
+  <form id="quizForm"></form>
+  <button id="submitBtn">제출</button>
+  <div id="error"></div>
+</div>
+
+<div id="result" class="hidden"></div>
+
+<script src="./math_sets.js"></script>
+<script>
+const setSelect = document.getElementById("setSelect");
+const quiz = document.getElementById("quiz");
+const quizForm = document.getElementById("quizForm");
+const submitBtn = document.getElementById("submitBtn");
+const errorDiv = document.getElementById("error");
+const resultDiv = document.getElementById("result");
+const setTitle = document.getElementById("setTitle");
+
+let currentSet = null;
+
+// 세트 선택 UI
+window.SET_BANK.forEach(set => {
+  const btn = document.createElement("button");
+  btn.textContent = set.title;
+  btn.className = "set-btn";
+  btn.onclick = () => loadSet(set);
+  setSelect.appendChild(btn);
+});
+
+function loadSet(set) {
+  currentSet = set;
+  quizForm.innerHTML = "";
+  resultDiv.classList.add("hidden");
+  errorDiv.textContent = "";
+  quiz.classList.remove("hidden");
+  setTitle.textContent = set.title;
+
+  const attempts = Number(localStorage.getItem("math_attempts_" + set.id) || 0);
+  if (attempts >= 5) {
+    submitBtn.disabled = true;
+    errorDiv.textContent = "제출 횟수를 초과했습니다";
+  } else {
+    submitBtn.disabled = false;
+  }
+
+  set.prompts.forEach((prompt, qi) => {
+    const qDiv = document.createElement("div");
+    qDiv.className = "question";
+    qDiv.innerHTML = `<div>문항 ${qi + 1}</div>`;
+
+    const choicesDiv = document.createElement("div");
+    choicesDiv.className = "choices";
+
+    set.choices[qi].forEach((choice, ci) => {
+      const id = `q${qi}_c${ci}`;
+      const label = document.createElement("label");
+      label.innerHTML = `
+        <input type="radio" name="q${qi}" value="${ci + 1}" id="${id}">
+        <span>${ci + 1}. ${choice}</span>
+      `;
+      choicesDiv.appendChild(label);
+    });
+
+    qDiv.appendChild(choicesDiv);
+    quizForm.appendChild(qDiv);
+  });
+}
+
+submitBtn.onclick = () => {
+  if (!currentSet) return;
+
+  const attemptsKey = "math_attempts_" + currentSet.id;
+  const attempts = Number(localStorage.getItem(attemptsKey) || 0);
+  if (attempts >= 5) {
+    submitBtn.disabled = true;
+    errorDiv.textContent = "제출 횟수를 초과했습니다";
+    return;
+  }
+
+  const answers = [];
+  for (let i = 0; i < currentSet.prompts.length; i++) {
+    const checked = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!checked) {
+      errorDiv.textContent = "모든 문항을 선택해야 제출할 수 있습니다";
+      return;
+    }
+    answers.push(Number(checked.value));
+  }
+
+  // 채점 실행 → 이 시점에만 카운트 증가
+  localStorage.setItem(attemptsKey, attempts + 1);
+
+  const wrong = [];
+  answers.forEach((v, i) => {
+    if (v !== currentSet.answers[i]) {
+      wrong.push(i + 1);
+    }
+  });
+
+  quiz.classList.add("hidden");
+  resultDiv.classList.remove("hidden");
+  resultDiv.textContent =
+    `틀린 개수: ${wrong.length} / 틀린 문항 번호: ${wrong.join(", ") || "없음"}`;
+};
+</script>
+
+</body>
+</html>
