@@ -346,7 +346,7 @@ function loadSet(set) {
 
     const title = document.createElement("div");
     title.className = "q-title";
-    title.textContent = `문항 ${qi + 1}`;
+    title.textContent = `문항 ${set.prompts[qi]}`;
     qDiv.appendChild(title);
 
     const choicesDiv = document.createElement("div");
@@ -417,3 +417,4 @@ submitBtn.onclick = () => {
 
 </body>
 </html>
+
