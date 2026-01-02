@@ -147,4 +147,4 @@ const mathSets = [
 // 다른 파일에서 import해서 쓴다면 아래 중 한 줄만 프로젝트 스타일에 맞게 사용하세요.
 // 1) 브라우저 전역으로 쓰는 경우: 아래 export 줄은 지우고 <script>로 로드
 // 2) 모듈로 쓰는 경우:
-export { mathSets };
+window.SET_BANK = mathSets;
