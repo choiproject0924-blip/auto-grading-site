@@ -13,15 +13,15 @@ const MATH_DATA = [
                 ]
             },
             {
-                no: "3", type: "selection", answer: "1",
-                choices: [
-                    "A = 3x² - 5, B = -x² + 3x - 2", 
+                no: "3", type: "selection", answer: "7",
+                choices: [ 
                     "A = 3x² + 5, B = -x² - 3x - 2",
                     "A = 3x² - 5, B = x² + 3x - 2",
                     "A = -3x² - 5, B = -x² + 3x + 2",
                     "A = 3x² - 2, B = -x² + 3x - 5",
                     "A = 3x² - 5, B = -x² - 3x + 2",
                     "A = 2x² - 5, B = -x² + 2x - 2",
+                    "A = 3x² - 5, B = -x² + 3x - 2",
                     "모름"
                 ]
             }
@@ -108,18 +108,18 @@ const MATH_DATA = [
             { no: "1-(2)", type: "subjective", answer: "999" },
             { no: "2", type: "subjective", answer: "5" },
             {
-                no: "3-(1)", type: "selection", answer: "1",
+                no: "3-(1)", type: "selection", answer: "2",
                 choices: [
-                    "(x+1)(x+4)(x-3)", "(x-1)(x-4)(x+3)", "(x+1)(x-4)(x+3)", 
+                    "(x-1)(x-4)(x+3)", "(x+1)(x+4)(x-3)", "(x+1)(x-4)(x+3)", 
                     "(x-1)(x+4)(x-3)", "(x+1)(x+4)(x+3)", "(x+1)(x+3)(x-4)", 
                     "(x-1)(x+4)(x+3)", "모름"
                 ]
             },
             {
-                no: "3-(2)", type: "selection", answer: "1",
+                no: "3-(2)", type: "selection", answer: "4",
                 choices: [
-                    "(x+2)(x-3)(2x-1)", "(x-2)(x+3)(2x+1)", "(x+2)(x+3)(2x-1)", 
-                    "(x+2)(x-3)(2x+1)", "(x-2)(x-3)(2x-1)", "(x+1)(x-2)(2x-3)", 
+                    "(x+2)(x-3)(2x+1)", "(x-2)(x+3)(2x+1)", "(x+2)(x+3)(2x-1)", 
+                    "(x+2)(x-3)(2x-1)", "(x-2)(x-3)(2x-1)", "(x+1)(x-2)(2x-3)", 
                     "(x+2)(x+3)(2x+1)", "모름"
                 ]
             },
@@ -535,4 +535,5 @@ const MATH_DATA = [
             { no: "10", type: "subjective", answer: "4" }
         ]
     }
+
 ];
