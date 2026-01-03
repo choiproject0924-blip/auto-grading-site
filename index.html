@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통합 학습 매니저</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { margin-bottom: 20px; color: #333; }
+        input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            border: 2px solid #eee; border-radius: 10px;
+            font-size: 18px; text-align: center; box-sizing: border-box; outline: none;
+        }
+        .btn {
+            display: block; width: 100%; padding: 15px;
+            border: none; border-radius: 12px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            text-decoration: none; box-sizing: border-box; transition: 0.2s;
+            background-color: #333; color: white; margin-bottom: 10px;
+        }
+        .subject-btn { background-color: white; border: 2px solid #e1e4e8; color: #333; }
+        .subject-btn:hover { border-color: #5d5fef; color: #5d5fef; background-color: #f8f9fa; }
+        .btn-literature:hover { border-color: #ff6b6b; color: #ff6b6b; }
+        .btn-math:hover { border-color: #4dabf7; color: #4dabf7; }
+        #menu-screen { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-screen">
+            <h2>🔒 통합 학습 매니저</h2>
+            <input type="password" id="pw" placeholder="코드 4자리 (0000)" maxlength="4">
+            <button class="btn" onclick="checkLogin()">입장하기</button>
+        </div>
+
+        <div id="menu-screen">
+            <h2>📚 과목 선택</h2>
+            
+            <a href="고1 독서.html" class="btn subject-btn">📖 고1 독서</a>
+            <a href="고1 문학.html" class="btn subject-btn btn-literature">📖 고2 문학</a>
+            <a href="math00.html" class="btn subject-btn btn-math">➗ 수학 도형</a>
+            <a href="math10.html" class="btn subject-btn btn-math">✖️ 공통수학 1</a>
+            <a href="math11.html" class="btn subject-btn btn-math">➕ 공통수학 1 워크북</a>
+        </div>
+    </div>
+
+    <script>
+    const AUTH_KEY = "ilm_auth_v1";
+
+    function showMenu() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block';
+    }
+
+    function showLogin() {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'block';
+    }
+
+    function checkLogin() {
+        if (document.getElementById('pw').value === "2026") {
+            localStorage.setItem(AUTH_KEY, "1");
+            showMenu();
+        } else {
+            alert("코드가 틀렸습니다.");
+            document.getElementById('pw').value = "";
+        }
+    }
+
+    // 이미 로그인 상태면(채점 후 index.html로 돌아와도) 바로 과목 목록으로
+    window.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem(AUTH_KEY) === "1") {
+            showMenu();
+        } else {
+            showLogin();
+        }
+
+        // 엔터로도 입장
+        const pw = document.getElementById('pw');
+        if (pw) {
+            pw.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkLogin();
+            });
+        }
+    });
+</script>
+</body>
+</html>

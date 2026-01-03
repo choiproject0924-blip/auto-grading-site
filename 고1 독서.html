@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 마더텅 독서</title>
+    <style>
+        /* [기본 설정] */
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+        
+        /* 메인 컨테이너 */
+        .container { 
+            background: white; padding: 30px; border-radius: 25px; 
+            width: 100%; max-width: 900px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            display: flex; flex-direction: column; height: 85vh; 
+        }
+        
+        h2 { text-align: center; color: #1a1a1a; margin-bottom: 25px; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        
+        /* [목록 화면 - 그리드 디자인] */
+        #list-screen { display: flex; flex-direction: column; height: 100%; }
+        
+        #list-area { 
+            flex: 1; 
+            overflow-y: auto; 
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 12px; 
+            padding: 5px;
+            align-content: start;
+        }
+        
+        /* 리스트 아이템 디자인 */
+        .list-item { 
+            background: white; 
+            border: 2px solid #e1e4e8; 
+            padding: 15px 10px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            transition: all 0.2s ease;
+            aspect-ratio: 1 / 1; 
+            text-align: center;
+        }
+        .list-item:hover { 
+            border-color: #5d5fef; 
+            background-color: #f8f9fa; 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 15px rgba(93, 95, 239, 0.2);
+        }
+        
+        .item-title { font-weight: bold; color: #333; font-size: 15px; margin-bottom: 8px; word-break: keep-all; line-height: 1.2; }
+        .item-badge { background: #eee; padding: 4px 8px; border-radius: 6px; font-size: 12px; color: #666; font-weight: bold; }
+
+        /* [문제 풀기 화면] */
+        #quiz-screen { display: none; text-align: center; height: 100%; flex-direction: column; justify-content: center; max-width: 500px; margin: 0 auto; width:100%; }
+        input { width: 80%; padding: 15px; font-size: 26px; text-align: center; border: 2px solid #5d5fef; border-radius: 12px; margin: 30px auto; outline: none; letter-spacing: 8px; font-weight: bold; display: block; }
+        
+        /* 버튼 스타일 */
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-submit { background-color: #5d5fef; color: white; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(93, 95, 239, 0.3); }
+        .btn-submit:hover { background-color: #4b4dd6; transform: translateY(-2px); }
+        .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; transform: none; } /* 잠김 버튼 스타일 */
+        
+        .btn-back { background-color: #e1e4e8; color: #333; }
+        .btn-back:hover { background-color: #d1d5db; }
+        
+        /* 결과 박스 */
+        .result-box { margin-top: 20px; padding: 20px; background: #eefcf0; border: 2px solid #27ae60; border-radius: 12px; color: #1e8449; font-weight: bold; display: none; font-size: 18px; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 스크롤바 디자인 */
+        #list-area::-webkit-scrollbar { width: 8px; }
+        #list-area::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        #list-area::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        #list-area::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+        @media (max-width: 600px) {
+            #list-area { grid-template-columns: repeat(3, 1fr); }
+            .container { padding: 20px; }
+            h2 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="list-screen">
+            <h2>📖 2026 마더텅 독서</h2>
+            <div id="list-area"></div>
+        </div>
+
+        <div id="quiz-screen">
+            <h3 id="q-title" style="font-size: 22px; margin-bottom: 10px; color:#1a1a1a;"></h3>
+            <p id="q-info" style="color:#666; margin-bottom: 20px; font-size: 15px;"></p>
+            
+            <input type="tel" id="user-input" placeholder="답안 입력">
+            
+            <button class="btn btn-submit" onclick="grade()">채점하기</button>
+            <div id="result-box" class="result-box"></div>
+            <div style="flex:1"></div> 
+            <button class="btn btn-back" onclick="goList()">목록으로 돌아가기</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // [데이터] 인문, 사회, 과학, 예술 통합 데이터 (총 98개)
+        // ============================================================
+        const data = [
+            // [인문]
+            { title: "인문 01", count: 5, answer: "52225" },
+            { title: "인문 02", count: 4, answer: "3232" },
+            { title: "인문 03", count: 5, answer: "24412" },
+            { title: "인문 04", count: 5, answer: "24532" },
+            { title: "인문 05", count: 4, answer: "5511" },
+            { title: "인문 06", count: 5, answer: "12323" },
+            { title: "인문 07", count: 5, answer: "32141" },
+            { title: "인문 08", count: 5, answer: "45225" },
+            { title: "인문 09", count: 4, answer: "4514" },
+            { title: "인문 10", count: 6, answer: "244543" },
+            { title: "인문 11", count: 5, answer: "32441" },
+            { title: "인문 12", count: 5, answer: "24351" },
+            { title: "인문 13", count: 4, answer: "4451" },
+            { title: "인문 14", count: 4, answer: "2312" },
+            { title: "인문 15", count: 5, answer: "23542" },
+            { title: "인문 16", count: 5, answer: "11232" },
+            { title: "인문 17", count: 6, answer: "254522" },
+            { title: "인문 18", count: 5, answer: "34521" },
+            { title: "인문 19", count: 6, answer: "425325" },
+            { title: "인문 20", count: 6, answer: "225353" },
+            { title: "인문 21", count: 6, answer: "431532" },
+            { title: "인문 22", count: 6, answer: "345424" },
+            { title: "인문 23", count: 5, answer: "35323" },
+            { title: "인문 24", count: 5, answer: "45532" },
+
+            // [사회]
+            { title: "사회 01", count: 5, answer: "32331" },
+            { title: "사회 02", count: 4, answer: "5112" },
+            { title: "사회 03", count: 5, answer: "52455" },
+            { title: "사회 04", count: 5, answer: "25551" },
+            { title: "사회 05", count: 5, answer: "51253" },
+            { title: "사회 06", count: 5, answer: "22333" },
+            { title: "사회 07", count: 6, answer: "131242" },
+            { title: "사회 08", count: 5, answer: "43111" },
+            { title: "사회 09", count: 5, answer: "33151" },
+            { title: "사회 10", count: 5, answer: "53543" },
+            { title: "사회 11", count: 6, answer: "523435" },
+            { title: "사회 12", count: 5, answer: "15121" },
+            { title: "사회 13", count: 5, answer: "14253" },
+            { title: "사회 14", count: 4, answer: "1523" },
+            { title: "사회 15", count: 6, answer: "455351" },
+            { title: "사회 16", count: 3, answer: "544" },
+            { title: "사회 17", count: 5, answer: "45253" },
+            { title: "사회 18", count: 6, answer: "345141" },
+            { title: "사회 19", count: 4, answer: "2234" },
+            { title: "사회 20", count: 5, answer: "13554" },
+            { title: "사회 21", count: 5, answer: "22532" },
+            { title: "사회 22", count: 5, answer: "22453" },
+            { title: "사회 23", count: 5, answer: "21251" },
+            { title: "사회 24", count: 5, answer: "15434" },
+            { title: "사회 25", count: 4, answer: "4513" },
+
+            // [과학]
+            { title: "과학 01", count: 4, answer: "2512" },
+            { title: "과학 02", count: 5, answer: "15433" },
+            { title: "과학 03", count: 4, answer: "3532" },
+            { title: "과학 04", count: 5, answer: "5351" },
+            { title: "과학 05", count: 6, answer: "522253" },
+            { title: "과학 06", count: 5, answer: "44151" },
+            { title: "과학 07", count: 2, answer: "45" },
+            { title: "과학 08", count: 5, answer: "34131" },
+            { title: "과학 09", count: 5, answer: "51153" },
+            { title: "과학 10", count: 5, answer: "32553" },
+            { title: "과학 11", count: 4, answer: "3354" },
+            { title: "과학 12", count: 6, answer: "245144" },
+            { title: "과학 13", count: 3, answer: "342" },
+            { title: "과학 14", count: 5, answer: "15334" },
+            { title: "과학 15", count: 5, answer: "31321" },
+            { title: "과학 16", count: 5, answer: "51444" },
+            { title: "과학 17", count: 5, answer: "12544" },
+            { title: "과학 18", count: 5, answer: "13543" },
+            { title: "과학 19", count: 4, answer: "5434" },
+            { title: "과학 20", count: 6, answer: "154442" },
+            { title: "과학 21", count: 5, answer: "45513" },
+            { title: "과학 22", count: 3, answer: "421" },
+            { title: "과학 23", count: 3, answer: "532" },
+
+            // [예술]
+            { title: "예술 01", count: 4, answer: "3142" },
+            { title: "예술 02", count: 3, answer: "314" },
+            { title: "예술 03", count: 5, answer: "13442" },
+            { title: "예술 04", count: 6, answer: "354352" },
+            { title: "예술 05", count: 5, answer: "14353" },
+            { title: "예술 06", count: 4, answer: "2554" }
+        ];
+
+        // ============================================================
+        // [시스템 로직] 5회 제한 (비밀번호 없음)
+        // ============================================================
+
+        const MAX_TRY = 5; // 🛑 최대 시도 횟수 (5번)
+
+        let currentIdx = 0;
+        const listArea = document.getElementById('list-area');
+
+        // 1. 목록 생성
+        data.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            // 저장된 횟수 확인
+            const storageKey = `try_${document.title}_${index}`;
+            const attempts = parseInt(localStorage.getItem(storageKey) || 0);
+            
+            // 5번 다 썼으면 빨간색 표시
+            const isLocked = attempts >= MAX_TRY;
+            const badgeColor = isLocked ? "#ff6b6b" : "#eee";
+            const badgeText = isLocked ? "종료됨" : `${item.count}문제`;
+            const badgeTextColor = isLocked ? "white" : "#666";
+
+            div.innerHTML = `
+                <span class="item-title">${item.title}</span>
+                <span class="item-badge" style="background:${badgeColor}; color:${badgeTextColor}">${badgeText}</span>
+            `;
+            div.onclick = () => openQuiz(index);
+            listArea.appendChild(div);
+        });
+
+        // 2. 문제 풀기 화면 열기
+        function openQuiz(index) {
+            currentIdx = index;
+            const item = data[index];
+            const storageKey = `try_${document.title}_${index}`;
+            let attempts = parseInt(localStorage.getItem(storageKey) || 0);
+
+            // 5회 이상 시도했으면 잠금 처리
+            const isLocked = attempts >= MAX_TRY;
+
+            document.getElementById('list-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'flex';
+            
+            document.getElementById('q-title').innerText = item.title;
+            
+            // 안내 문구 설정
+            const infoText = isLocked 
+                ? `⛔ 기회를 모두 소진했습니다. 선생님께 문의하세요.` 
+                : `남은 기회: ${MAX_TRY - attempts}회 | 정답을 입력하세요`;
+            
+            document.getElementById('q-info').innerText = infoText;
+            document.getElementById('q-info').style.color = isLocked ? "red" : "#666";
+            
+            const input = document.getElementById('user-input');
+            input.value = '';
+            input.setAttribute('placeholder', isLocked ? "입력 기회 소진됨" : `예: ${'1'.repeat(item.count)}`);
+            input.setAttribute('maxlength', item.count);
+            
+            // 잠겼으면 입력창과 버튼 비활성화
+            input.disabled = isLocked;
+            const submitBtn = document.querySelector('.btn-submit');
+            submitBtn.disabled = isLocked;
+            submitBtn.innerText = isLocked ? "종료됨" : "채점하기";
+            
+            document.getElementById('result-box').style.display = 'none';
+            
+            if(!isLocked) {
+                setTimeout(() => input.focus(), 100);
+            }
+        }
+
+        // 3. 채점 로직
+        function grade() {
+            const item = data[currentIdx];
+            const inputVal = document.getElementById('user-input').value;
+            const storageKey = `try_${document.title}_${currentIdx}`;
+            let attempts = parseInt(localStorage.getItem(storageKey) || 0);
+
+            // 답 길이 체크
+            if(inputVal.length !== item.count) {
+                alert(`${item.count}자리의 정답을 모두 입력해주세요!`);
+                document.getElementById('user-input').focus();
+                return;
+            }
+
+            // 횟수 1 증가 및 저장
+            attempts++;
+            localStorage.setItem(storageKey, attempts);
+
+            // 채점 시작
+            let score = 0;
+            for(let i=0; i < item.count; i++) {
+                if(inputVal[i] === item.answer[i]) score++;
+            }
+
+            const resultBox = document.getElementById('result-box');
+            resultBox.style.display = 'block';
+            let resultHTML = `채점 결과: ${item.count}문제 중 ${score}개 정답!`;
+
+            if(score === item.count) {
+                // 정답 시
+                resultBox.style.color = "#1e8449"; // 초록
+                resultBox.style.borderColor = "#27ae60";
+                resultBox.style.backgroundColor = "#eefcf0";
+                resultHTML += "<br>🎉 완벽합니다!";
+                
+                // 정답 맞히면 더 못 풀게 잠그려면 아래 주석 해제 (지금은 횟수만 차감)
+                // localStorage.setItem(storageKey, MAX_TRY); 
+            } else {
+                // 오답 시
+                resultBox.style.color = "#c0392b"; // 빨강
+                resultBox.style.borderColor = "#e74c3c";
+                resultBox.style.backgroundColor = "#fceeee";
+                resultHTML += `<br>틀렸습니다. (남은 기회: ${MAX_TRY - attempts}회)`;
+            }
+
+            // 기회 소진 시 처리 (이번 시도로 5회가 되었을 때)
+            if(attempts >= MAX_TRY) {
+                resultHTML += "<br><b>⛔ 기회가 모두 소진되었습니다.</b>";
+                // 즉시 잠금
+                document.getElementById('user-input').disabled = true;
+                document.getElementById('user-input').placeholder = "입력 기회 소진됨";
+                document.querySelector('.btn-submit').disabled = true;
+                document.querySelector('.btn-submit').innerText = "종료됨";
+                document.getElementById('q-info').innerText = "⛔ 기회를 모두 소진했습니다. 선생님께 문의하세요.";
+                document.getElementById('q-info').style.color = "red";
+            } else {
+                 document.getElementById('q-info').innerText = `남은 기회: ${MAX_TRY - attempts}회 | 정답을 입력하세요`;
+            }
+
+            resultBox.innerHTML = resultHTML;
+        }
+
+        // 4. 목록으로 돌아가기
+        function goList() {
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>
