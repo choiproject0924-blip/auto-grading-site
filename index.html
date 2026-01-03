@@ -81,37 +81,36 @@
 </head>
 <body>
     <div class="container">
-        <!-- 로그인 화면 -->
         <div id="login-screen">
             <h2>🔒 통합 학습 매니저</h2>
             <input type="password" id="pw" placeholder="코드 4자리 (0000)" maxlength="4">
             <button class="btn" onclick="checkLogin()">입장하기</button>
         </div>
 
-        <!-- 비밀번호 통과 후 노출 영역 -->
         <div id="menu-screen">
             <h2>📚 과목 선택</h2>
 
-            <!-- 1. 국어 독서 -->
             <a href="2026마더텅독서.html" class="btn subject-btn">
                 📖 2026 마더텅 독서
             </a>
 
-            <!-- 2. 국어 문학 -->
             <a href="2026마더텅문학.html" class="btn subject-btn btn-literature">
                 📖 2026 마더텅 문학
             </a>
 
-            <!-- 3. 수학 도형 (추가된 부분) -->
             <a href="math.html" class="btn subject-btn btn-math">
                 ➗ 수학 도형
+            </a>
+
+            <a href="math10.html" class="btn subject-btn btn-math">
+                ➕ 공통수학 1-1
             </a>
         </div>
     </div>
 
     <script>
         function checkLogin() {
-            if (document.getElementById('pw').value === "2026") {
+            if (document.getElementById('pw').value === "0000") {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('menu-screen').style.display = 'block';
             } else {
@@ -122,4 +121,3 @@
     </script>
 </body>
 </html>
-
